@@ -7,35 +7,35 @@
 
 ---
 
-## Özet
+## Summary
 
-DAEIN-MFG, endüstriyel IoT ortamlarında **bulut bağımlılığı olmadan** gerçek zamanlı makine arızası tespiti ve otonom müdahale gerçekleştiren bir çok-ajanlı kenar zekası simülasyonudur.
+DAEIN-MFG is a multi-agent edge intelligence simulation that performs real-time machine fault detection and autonomous response in industrial IoT environments **without cloud dependency**.
 
-Üç paradigmanın kesişiminde konumlanır:
+It sits at the intersection of three paradigms:
 
-| Paradigma | Bu Projede Karşılığı |
+| Paradigm | Role in This Project |
 |---|---|
-| Agentic Edge Intelligence | FSM tabanlı µ-Agent + PPO Orkestratör |
-| Agentic IoT | MQTT üzerinden otonom sensör-aktüatör koordinasyonu |
-| Distributed Data Engineering | Async stream pipeline + Raft konsensüs |
+| Agentic Edge Intelligence | FSM-based µ-Agent + PPO Orchestrator |
+| Agentic IoT | Autonomous sensor-actuator coordination over MQTT |
+| Distributed Data Engineering | Async stream pipeline + Raft consensus |
 
-### Temel Akademik Katkılar
+### Key Academic Contributions
 
-1. **Edge Advantage Function (EAF):** Gecikme, bant genişliği ve veri uyumluluğunu tek bir skorda birleştiren ölçüm çerçevesi.
-2. **Hibrit Raft + Auction Konsensüs:** Arıza şiddet oylaması için sealed-bid açık artırma mekanizması ile genişletilmiş Raft.
-3. **İki Aşamalı ML Skorlayıcı:** IsolationForest (sürekli anomali skoru) + RandomForest (tetiklemede sınıflandırma) mimarisi.
-4. **Resource-Aware PPO:** Donanım bütçesi kısıtlarını durum uzayına dahil eden RL politikası.
+1. **Edge Advantage Function (EAF):** A measurement framework that combines latency, bandwidth, and data compliance into a single score.
+2. **Hybrid Raft + Auction Consensus:** Raft extended with a sealed-bid auction mechanism for fault severity voting.
+3. **Two-Stage ML Scorer:** IsolationForest (continuous anomaly score) + RandomForest (classification on trigger) architecture.
+4. **Resource-Aware PPO:** An RL policy that incorporates hardware budget constraints into the state space.
 
 ---
 
-## Sistem Mimarisi
+## System Architecture
 
 ```
-TIER 2: GATEWAY ORKESTRATÖRÜ (Jetson Nano sim.)
+TIER 2: GATEWAY ORCHESTRATOR (Jetson Nano sim.)
   ┌──────────────────────────────────────────────┐
-  │  MQTTClient ──► PPO Politikası               │
-  │  RaftNode   ──► Auction Bid Mekanizması      │
-  │  ActorHandle ── Ray-uyumlu async proxy       │
+  │  MQTTClient ──► PPO Policy                   │
+  │  RaftNode   ──► Auction Bid Mechanism        │
+  │  ActorHandle ── Ray-compatible async proxy   │
   └──────────────────────────────────────────────┘
                      ▲ MQTT
 TIER 1: µ-AGENT (Raspberry Pi 4 sim.)
@@ -45,74 +45,74 @@ TIER 1: µ-AGENT (Raspberry Pi 4 sim.)
   │  FFT feature extraction (256-sample window)  │
   └──────────────────────────────────────────────┘
                      ▲ asyncio
-SENSÖR SİMÜLATÖRÜ
-  Titreşim (100Hz) + Isı (10Hz) + Rulman arıza enjeksiyonu
+SENSOR SIMULATOR
+  Vibration (100Hz) + Temperature (10Hz) + Bearing fault injection
 ```
 
 ---
 
-## Kurulum
+## Installation
 
 ```bash
-# 1. Repoyu klonla
+# 1. Clone the repo
 git clone https://github.com/[username]/daein-mfg.git
 cd daein-mfg
 
-# 2. Sanal ortam oluştur (Python 3.10+)
+# 2. Create a virtual environment (Python 3.10+)
 python -m venv .venv
 source .venv/bin/activate      # Linux/Mac
 .venv\Scripts\activate         # Windows
 
-# 3. Bağımlılıkları kur
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Geliştirme modunda kur (import daein_mfg çalışması için)
+# 4. Install in development mode (for `import daein_mfg` to work)
 pip install -e .
 ```
 
 ---
 
-## Hızlı Başlangıç
+## Quick Start
 
-### Adım 1 — Modelleri Eğit
+### Step 1 — Train Models
 
 ```bash
 python scripts/train_models.py
 ```
 
-Çıktı:
+Output:
 ```
-Veri seti üretiliyor... 2000 örnek, 14 özellik
-IsolationForest eğitiliyor...
-  Normal  → ortalama anomali skoru: 0.312
-  Anormal → ortalama anomali skoru: 0.718
-RandomForest eğitiliyor...
+Generating dataset... 2000 samples, 14 features
+Training IsolationForest...
+  Normal  → mean anomaly score: 0.312
+  Abnormal → mean anomaly score: 0.718
+Training RandomForest...
   5-fold CV F1 (weighted): 0.9821 ± 0.0043
-Kaydedildi: isolation_forest.joblib (648 KB)
-             fault_classifier.joblib  (40 KB)
+Saved: isolation_forest.joblib (648 KB)
+       fault_classifier.joblib  (40 KB)
 ```
 
-### Adım 2 — Simülasyonu Çalıştır
+### Step 2 — Run Simulation
 
 ```bash
 python scripts/run_simulation.py
 ```
 
-Çıktı:
+Output:
 ```
-DAEIN-MFG — Aşama 5: Raft + Edge vs Cloud Analizi
-Clusters: 3 | Nodes: 12 | Süre: 120s (gerçek ≈12s)
+DAEIN-MFG — Phase 5: Raft + Edge vs Cloud Analysis
+Clusters: 3 | Nodes: 12 | Duration: 120s (real ≈12s)
 ...
 1. DETECTION-TO-ACTUATION LATENCY (DAL)
-   Edge  (DAEIN-MFG) : ort=442ms  P95=450ms
-   Cloud (Baseline)  : ort=920ms  P95=1899ms
-   Azalma: +52%  |  Cohen's d = 1.559 (Büyük etki)
+   Edge  (DAEIN-MFG) : avg=442ms  P95=450ms
+   Cloud (Baseline)  : avg=920ms  P95=1899ms
+   Reduction: +52%  |  Cohen's d = 1.559 (Large effect)
 
 7. EDGE ADVANTAGE FUNCTION (EAF)
-   EAF = +1.0439  →  Edge üstün ✓
+   EAF = +1.0439  →  Edge superior ✓
 ```
 
-### Adım 3 — Testleri Çalıştır
+### Step 3 — Run Tests
 
 ```bash
 pytest tests/ -v --cov=daein_mfg
@@ -120,145 +120,145 @@ pytest tests/ -v --cov=daein_mfg
 
 ---
 
-## Proje Yapısı
+## Project Structure
 
 ```
 daein-mfg/
 │
-├── README.md                        # Bu dosya
-├── requirements.txt                 # Bağımlılıklar
-├── setup.py                         # Paket kurulum
+├── README.md                        # This file
+├── requirements.txt                 # Dependencies
+├── setup.py                         # Package setup
 ├── .gitignore
 ├── LICENSE
 │
-├── daein_mfg/                       # Ana Python paketi
-│   ├── config.py                    # Merkezi parametreler
+├── daein_mfg/                       # Main Python package
+│   ├── config.py                    # Central parameters
 │   │
 │   ├── simulation/
-│   │   ├── sensor_generator.py      # Fizik tabanlı sensör simülatörü
+│   │   ├── sensor_generator.py      # Physics-based sensor simulator
 │   │   └── micro_agent.py           # µ-Agent FSM + ML inference + MQTT
 │   │
 │   ├── messaging/
 │   │   ├── broker.py                # In-process async MQTT broker
-│   │   └── gateway.py               # Cluster gateway (Aşama 3)
+│   │   └── gateway.py               # Cluster gateway (Phase 3)
 │   │
 │   ├── orchestrator/
 │   │   ├── actor_runtime.py         # Ray Actor proxy (async)
 │   │   ├── ml_scorer.py             # IsolationForest + RF scorer
-│   │   ├── ppo_policy.py            # PPO kaynak tahsis politikası
-│   │   ├── orchestrator_agent.py    # Ana orkestratör ajanı
-│   │   ├── raft.py                  # Raft + Auction-bid konsensüs
-│   │   └── raft_cluster.py          # Çok-node Raft koordinatörü
+│   │   ├── ppo_policy.py            # PPO resource allocation policy
+│   │   ├── orchestrator_agent.py    # Main orchestrator agent
+│   │   ├── raft.py                  # Raft + Auction-bid consensus
+│   │   └── raft_cluster.py          # Multi-node Raft coordinator
 │   │
 │   └── evaluation/
-│       ├── cloud_simulator.py       # Cloud gecikme/bant modeli
-│       └── metrics_engine.py        # EAF + akademik metrik raporu
+│       ├── cloud_simulator.py       # Cloud latency/bandwidth model
+│       └── metrics_engine.py        # EAF + academic metrics report
 │
 ├── scripts/
-│   ├── train_models.py              # Model eğitimi (bağımsız çalışır)
-│   └── run_simulation.py            # Tam simülasyon (Aşama 5)
+│   ├── train_models.py              # Model training (standalone)
+│   └── run_simulation.py            # Full simulation (Phase 5)
 │
 ├── tests/
-│   ├── conftest.py                  # Paylaşılan fixture'lar
-│   ├── test_sensor.py               # Sensör simülatörü testleri
-│   ├── test_micro_agent.py          # µ-Agent FSM + inference testleri
-│   ├── test_broker.py               # MQTT broker testleri
-│   ├── test_raft.py                 # Raft konsensüs testleri
-│   └── test_metrics.py              # EAF ve metrik hesaplama testleri
+│   ├── conftest.py                  # Shared fixtures
+│   ├── test_sensor.py               # Sensor simulator tests
+│   ├── test_micro_agent.py          # µ-Agent FSM + inference tests
+│   ├── test_broker.py               # MQTT broker tests
+│   ├── test_raft.py                 # Raft consensus tests
+│   └── test_metrics.py              # EAF and metric calculation tests
 │
 ├── notebooks/
-│   └── results_analysis.ipynb      # Sonuç görselleştirme
+│   └── results_analysis.ipynb      # Results visualization
 │
 └── docs/
-    └── architecture.md             # Detaylı sistem mimarisi
+    └── architecture.md             # Detailed system architecture
 ```
 
 ---
 
-## Konfigürasyon
+## Configuration
 
-Tüm parametreler `daein_mfg/config.py` içinde merkezi olarak yönetilir:
+All parameters are centrally managed in `daein_mfg/config.py`:
 
 ```python
-# Anahtar parametreler
-SAMPLE_RATE_HZ        = 100      # Titreşim sensörü örnekleme hızı
-WINDOW_SIZE           = 256      # FFT pencere boyutu
-ANOMALY_THRESHOLD     = 0.55     # µ-Agent alarm eşiği
-N_CLUSTERS            = 3        # Cluster sayısı
-NODES_PER_CLUSTER     = 4        # Cluster başına node
-SIM_DURATION_S        = 120      # Simülasyon süresi
-TIME_ACCELERATION     = 10       # Hız katsayısı
-FAULT_INJECT_INTERVAL_S = 30     # Arıza enjeksiyon periyodu
+# Key parameters
+SAMPLE_RATE_HZ        = 100      # Vibration sensor sampling rate
+WINDOW_SIZE           = 256      # FFT window size
+ANOMALY_THRESHOLD     = 0.55     # µ-Agent alert threshold
+N_CLUSTERS            = 3        # Number of clusters
+NODES_PER_CLUSTER     = 4        # Nodes per cluster
+SIM_DURATION_S        = 120      # Simulation duration
+TIME_ACCELERATION     = 10       # Speed multiplier
+FAULT_INJECT_INTERVAL_S = 30     # Fault injection period
 ```
 
 ---
 
-## Arıza Türleri
+## Fault Types
 
-| Tür | Fiziksel Model | Sinyal Göstergesi |
+| Type | Physical Model | Signal Indicator |
 |---|---|---|
-| `BEARING_EARLY` | BPFO darbesi (87.3 Hz) | Kurtosis > 0.5, BPFO gücü artışı |
-| `BEARING_SEVERE` | Tüm eksenlerde darbe | Yüksek RMS, kurtosis > 3.0 |
-| `OVERLOAD` | Genel RMS artışı | Düşük kurtosis, yüksek RMS |
-| `MISALIGNMENT` | 2x, 3x harmonik baskınlığı | Düşük spektral entropi |
+| `BEARING_EARLY` | BPFO impulse (87.3 Hz) | Kurtosis > 0.5, BPFO power increase |
+| `BEARING_SEVERE` | Impulse on all axes | High RMS, kurtosis > 3.0 |
+| `OVERLOAD` | General RMS increase | Low kurtosis, high RMS |
+| `MISALIGNMENT` | 2x, 3x harmonic dominance | Low spectral entropy |
 
 ---
 
-## Sonuçlar Özeti
+## Results Summary
 
-Aşama 5 simülasyonu sonuçları (3 cluster, 12 node, 120s):
+Phase 5 simulation results (3 clusters, 12 nodes, 120s):
 
-| Metrik | Edge (DAEIN-MFG) | Cloud Baseline | Gelişme |
+| Metric | Edge (DAEIN-MFG) | Cloud Baseline | Improvement |
 |---|---|---|---|
-| Ort. DAL (ms) | 442 | 920 | **−52%** |
+| Avg. DAL (ms) | 442 | 920 | **−52%** |
 | P99 DAL (ms) | 450 | 1961 | **−77%** |
-| Bant Genişliği (KB) | 48.8 | 633.9 | **−92% (13×)** |
-| F1 Skoru | 0.780 | 0.856 | Cloud yüksek* |
-| EAF | +1.044 | — | **Edge üstün** |
-| Cohen's d | 1.559 | — | Büyük etki |
+| Bandwidth (KB) | 48.8 | 633.9 | **−92% (13×)** |
+| F1 Score | 0.780 | 0.856 | Cloud higher* |
+| EAF | +1.044 | — | **Edge superior** |
+| Cohen's d | 1.559 | — | Large effect |
 
-*Cloud F1 yüksek çünkü timeout'larda bile mevcut sensör verisi kullanılıyor; gerçek ortamda retry gecikmesi bu avantajı ortadan kaldırır.
+*Cloud F1 is higher because available sensor data is used even on timeouts; in real-world conditions, retry latency would eliminate this advantage.
 
 ---
 
-## Gerçek Donanıma Deployment
+## Deployment on Real Hardware
 
 ### Raspberry Pi 4 (µ-Agent)
 ```bash
 pip install tflite-runtime
-# micro_agent.py içindeki MLAnomalyScorer'ı TFLite ile değiştir
-# config.py → TIME_ACCELERATION = 1 (gerçek zaman)
+# Replace MLAnomalyScorer in micro_agent.py with TFLite
+# config.py → TIME_ACCELERATION = 1 (real time)
 ```
 
-### NVIDIA Jetson Nano (Orkestratör)
+### NVIDIA Jetson Nano (Orchestrator)
 ```bash
 pip install ray ollama
 # actor_runtime.py → ActorRuntime.create() → @ray.remote
-# orchestrator_agent.py → Phi-3-mini SLM entegrasyonu
+# orchestrator_agent.py → Phi-3-mini SLM integration
 ```
 
-### Gerçek MQTT Broker
+### Real MQTT Broker
 ```bash
 pip install paho-mqtt
 # messaging/broker.py → MQTTClient → paho.mqtt.client.Client wrapper
-# Broker: Mosquitto veya EMQX (lokal kurulum)
+# Broker: Mosquitto or EMQX (local installation)
 ```
 
 ---
 
-## Geliştirme Yol Haritası
+## Development Roadmap
 
-- [x] Aşama 1: Sensör simülatörü + µ-Agent FSM
-- [x] Aşama 2: IsolationForest + RandomForest ML
-- [x] Aşama 3: Async MQTT broker + ClusterGateway
-- [x] Aşama 4: ActorRuntime + PPO RL + Peer Offloading
-- [x] Aşama 5: Raft konsensüs + Edge vs Cloud analizi
-- [ ] Aşama 6: TFLite INT8 export + gerçek RPi4 deployment
-- [ ] Aşama 7: Phi-3-mini SLM entegrasyonu (Jetson Nano)
-- [ ] Aşama 8: CWRU Bearing Dataset ile gerçek veri doğrulama
+- [x] Phase 1: Sensor simulator + µ-Agent FSM
+- [x] Phase 2: IsolationForest + RandomForest ML
+- [x] Phase 3: Async MQTT broker + ClusterGateway
+- [x] Phase 4: ActorRuntime + PPO RL + Peer Offloading
+- [x] Phase 5: Raft consensus + Edge vs Cloud analysis
+- [ ] Phase 6: TFLite INT8 export + real RPi4 deployment
+- [ ] Phase 7: Phi-3-mini SLM integration (Jetson Nano)
+- [ ] Phase 8: Real data validation with CWRU Bearing Dataset
 
 ---
 
-## Lisans
+## License
 
-MIT License — Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+MIT License — See [LICENSE](LICENSE) for details.
