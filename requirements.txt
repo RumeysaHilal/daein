@@ -1,0 +1,29 @@
+# DAEIN-MFG — Python Bağımlılıkları
+# Kurulum: pip install -r requirements.txt
+
+# Temel bilimsel hesaplama
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Makine öğrenimi (edge inference)
+scikit-learn>=1.2.0
+joblib>=1.2.0
+
+# Test
+pytest>=7.3.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+
+# Geliştirme araçları (opsiyonel)
+black>=23.0.0
+flake8>=6.0.0
+
+# Notebook (opsiyonel)
+jupyter>=1.0.0
+matplotlib>=3.7.0
+
+# Gerçek deployment için (opsiyonel, simülasyonda gerek yok)
+# paho-mqtt>=1.6.0        # Gerçek MQTT broker bağlantısı
+# ray>=2.5.0              # Gerçek dağıtık Actor runtime
+# tflite-runtime>=2.13.0  # Gerçek TFLite inference (RPi4)
+# ollama>=0.1.0           # Phi-3 SLM (Jetson Nano)

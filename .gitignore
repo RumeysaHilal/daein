@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Sanal ortam
+.venv/
+venv/
+env/
+
+# Eğitilmiş modeller (büyük dosyalar — Git LFS kullan)
+*.joblib
+*.pkl
+*.h5
+*.tflite
+*.onnx
+daein_mfg/orchestrator/*.joblib
+
+# Test çıktıları
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Simülasyon çıktıları (isteğe bağlı)
+# logs/
+# results/
+yedek/
