@@ -55,7 +55,7 @@ SENSOR SIMULATOR
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/[username]/daein-mfg.git
+git clone https://github.com/RumeysaHilal/daein-mfg.git
 cd daein-mfg
 
 # 2. Create a virtual environment (Python 3.10+)
